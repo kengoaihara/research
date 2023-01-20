@@ -1,0 +1,5 @@
+﻿inst1,inst2,pra,main
+img/inst1.jpg,img/inst2.jpg,cond/pra1.csv,cond/cond1.csv
+img/inst3.jpg,img/inst4.jpg,cond/pra2.csv,cond/cond2.csv
+img/inst1.jpg,img/inst2.jpg,cond/pra3.csv,cond/cond3.csv
+img/inst3.jpg,img/inst4.jpg,cond/pra4.csv,cond/cond4.csv

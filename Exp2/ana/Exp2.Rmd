@@ -1,0 +1,253 @@
+---
+title: "Exp2"
+author: "Kengo Aihara"
+date: "2022/1/14"
+output: html_document
+---
+
+```{r message=FALSE, warning=FALSE}
+## Install Packages and Import Dataframe
+#Ctrl + Alt + I = insert section
+
+library("tidyverse")
+library("scales")
+library("effsize")
+library("pwr")
+library("readr")
+library("dplyr")
+library("reticulate")
+
+data1015a <- read_csv("r_data/data1015a_r.csv")
+data1015c <- read_csv("r_data/data1015c_r.csv")
+data1018b <- read_csv("r_data/data1018b_r.csv")
+data1019b <- read_csv("r_data/data1019b_r.csv")
+data1022a <- read_csv("r_data/data1022a_r.csv")
+data1029a <- read_csv("r_data/data1029a_r.csv")
+data1029b <- read_csv("r_data/data1029b_r.csv")
+data1030a <- read_csv("r_data/data1030a_r.csv")
+
+data1015b <- read_csv("r_data/data1015b_r.csv")
+data1018a <- read_csv("r_data/data1018a_r.csv")
+data1019a <- read_csv("r_data/data1019a_r.csv")
+data1020a <- read_csv("r_data/data1020a_r.csv")
+data1022b <- read_csv("r_data/data1022b_r.csv")
+data1029c <- read_csv("r_data/data1029c_r.csv")
+data1031a <- read_csv("r_data/data1031a_r.csv")
+data1101a <- read_csv("r_data/data1101a_r.csv")
+
+all <- rbind(data1015a,data1015c,data1018b,data1019b,data1022a,data1029a,data1029b,data1030a,
+             data1015b,data1018a,data1019a,data1020a,data1022b,data1029c,data1031a,data1101a)
+
+```
+
+```{r}
+# Psychometric Function(all)
+g <- ggplot(all, aes(x=x, y=y, group = cond, col = cond, shape = cond)) +
+  geom_abline(intercept = 0.5, slope = 0, linetype = 3, alpha = 0.5)+
+  geom_vline(xintercept = 0, slope = 0, linetype = 3, alpha = 0.5)+
+  geom_smooth(method = "glm", method.args = list(family = binomial(link = "logit")), se = FALSE,  size=1.5) +
+  stat_summary(fun = "mean", geom = "point" , size=4)+
+  theme_classic()+
+  scale_x_discrete(name = "The height of probe(line)(°)", limits = c(-0.8,-0.4,-0.2,0.0,0.2,0.4,0.8), expand = c(0.1,0)) +
+  scale_y_continuous(name = "Mean probability of comparison \n stimulus being perceived as larger")+
+  #facet_grid(.~sub)+
+  guides(shape = guide_legend(reverse = TRUE))+
+  guides(col = guide_legend(reverse = TRUE))+
+  theme(panel.border = element_rect(fill = NA, size=1))+
+  scale_shape(limits=c("IB", "IV","UB","UV"), labels = c(UV = "upright-vertex",UB = "upright-base",IV = "inverse-vertex",IB = "inverse-base"))+  
+  scale_color_manual(limits=c("IB","IV","UB","UV"), values = c("#BABABA","#dc0909","#BABABA","#dc0909"), labels = c(UV = "upright-vertex",UB = "upright-base",IV = "inverse-vertex",IB = "inverse-base"))+
+  labs(col = "orintation-part", shape ="orintation-part")+
+  theme(aspect.ratio=0.8)+ 
+  theme(plot.title=element_text(size=rel(1.75),face="bold"))+
+  theme(axis.title = element_text(size = 16, face = "bold"),
+        axis.text = element_text(size =  11, color = "black"),
+        strip.background = element_blank(),
+        strip.text = element_text(size = 15, face = "bold"))
+g
+
+ggsave("./img/shape_f.png")
+```
+
+```{r message=FALSE, warning=FALSE}
+## PSE Calculation
+
+"+" <- function(e1, e2) {
+    if (is.character(c(e1, e2))) {
+        paste(e1, e2, sep = "")
+    } else {
+        base::"+"(e1, e2)
+    }
+}
+
+num <- c("a","b","c","d","e","g","h","i","j","l","m","n","o","p","q","r")
+
+for (i in num) {
+  subject <- subset(all, sub == i)
+  
+  #UV_PSE
+  UV <- subset(subject, cond == "UV")
+  UV_m<-glm(formula = y ~ x, family = binomial(logit), data=UV)
+  UV_c <- coefficients(UV_m)
+  UV_PSE <- -c(UV_c[1]/UV_c[2],1/UV_c[2])
+  
+  #UB_PSE
+  UB <- subset(subject, cond == "UB")
+  UB_m<-glm(formula = y ~ x, family = binomial(logit), data=UB)
+  UB_c <- coefficients(UB_m)
+  UB_PSE <- -c(UB_c[1:1]/UB_c[2],1/UB_c[2])
+  
+  #IV_PSE
+  IV <- subset(subject, cond == "IV")
+  IV_m<-glm(formula = y ~ x, family = binomial(logit), data=IV)
+  IV_c <- coefficients(IV_m)
+  IV_PSE <- -c(IV_c[1]/IV_c[2],1/IV_c[2])
+  
+  #IB_PSE
+  IB <- subset(subject, cond=="IB")
+  IB_m<-glm(formula = y ~ x, family = binomial(logit), data=IB)
+  IB_c <- coefficients(IB_m)
+  IB_PSE <- -c(IB_c[1]/IB_c[2],1/IB_c[2])
+  
+  sub    <- c(i,i,i,i)
+  cond <- c("UV","UB","IV","IB")
+  pse_shape <- c(UV_PSE[1],UB_PSE[1],IV_PSE[1],IB_PSE[1])
+  as.numeric(pse_shape)
+  df <- data.frame(sub = sub,cond = cond, pse = pse_shape)
+  write.csv(df, file = "pse/" + "pse_" + i + ".csv")
+}
+
+num <- c("a","b","c","d","e","g","h","i","j","l","m","n","o","p","q","r")
+
+pse_a <- read_csv("pse/pse_a.csv")
+pse_b <- read_csv("pse/pse_b.csv")
+pse_c <- read_csv("pse/pse_c.csv")
+pse_d <- read_csv("pse/pse_d.csv")
+pse_e <- read_csv("pse/pse_e.csv")
+pse_g <- read_csv("pse/pse_g.csv")
+pse_h <- read_csv("pse/pse_h.csv")
+pse_i <- read_csv("pse/pse_i.csv")
+pse_j <- read_csv("pse/pse_j.csv")
+pse_l <- read_csv("pse/pse_l.csv")
+pse_m <- read_csv("pse/pse_m.csv")
+pse_n <- read_csv("pse/pse_n.csv")
+pse_o <- read_csv("pse/pse_o.csv")
+pse_p <- read_csv("pse/pse_p.csv")
+pse_q <- read_csv("pse/pse_q.csv")
+pse_r <- read_csv("pse/pse_r.csv")
+
+pse <- rbind(pse_a,pse_b,pse_c,pse_d,pse_d,pse_e,pse_g,pse_h,pse_i,pse_j,pse_l,pse_m,pse_m,pse_n,pse_o,pse_p,pse_q,pse_r)
+
+```
+
+```{r}
+p <- ggplot(pse, aes(x=cond, y=pse, fill=cond)) +
+  stat_summary(fun = "mean", geom = "bar",alpha = 0.9) +
+  geom_abline(intercept = 0, slope = 0, linetype = 1, alpha = 0.5)+
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", col = "black", width = 0, size = 1) +
+  scale_y_continuous(name = "PSE", limits = c(-0.4,0.4))+
+  geom_jitter(aes(col= sub), size = 1.5, width = 0.3,alpha = 0.75) +
+  theme_classic() +
+  annotate("text", size = 6, y=0.39, x=1.5, label="***") +
+  annotate("text", size = 6, y=0.39, x=3.5, label="***") +
+  annotate("segment", x=1,xend=2, y=0.37,yend=0.37,
+             colour="black", size=0.5)+
+  annotate("segment", x=3,xend=4, y=0.37,yend=0.37,
+             colour="black", size=0.5)+
+  annotate("text", size = 6, y=0.31, x=1, label="***") +
+  annotate("text", size = 4, y=0.33, x=2, label="n.s.", fontface="bold.italic") +
+  annotate("text", size = 6, y=0.31, x=3, label="***") +
+  annotate("text", size = 6, y=0.31, x=4, label="***") +
+  scale_fill_manual(values = c("#abb7b7", "#dc0909","#abb7b7","#dc0909"))+
+  scale_x_discrete(name = "orientation-part",limits=c("UV", "UB", "IV", "IB"))+
+  #theme(panel.border = element_rect(fill = NA, size=1))+
+  theme(aspect.ratio=0.9)+ 
+  theme(plot.title=element_text(size=rel(1.75),face="bold"))+
+  theme(axis.title = element_text(size = 16, face = "bold"),
+        axis.text = element_text(size =  11, color = "black"),
+        strip.background = element_blank(),
+        strip.text = element_text(size = 15, face = "bold"),
+        legend.position = "none") 
+p
+
+ggsave("img/shape_p.png")
+```
+
+```{r include=FALSE}
+
+num <- c("a","b","c","d","e","g","h","i","j","l","m","n","o","p","q","r")
+
+dif <- c()
+
+for (i in num) {
+  ind <- subset(pse, sub == i)
+  pse_uv <- ind["pse"][1,1] #UV
+  pse_ub <- ind["pse"][2,1] #UB
+  pse_iv <- ind["pse"][3,1] #IV
+  pse_ib <- ind["pse"][4,1] #IB
+  
+  dif_u <- pse_uv - pse_ub
+  as.numeric(dif_u)
+  dif_i <- pse_ib - pse_iv
+  as.numeric(dif_i)
+  
+  sub    <- c(i,i)
+  cond <- c("u","i")
+  dif_r <- rbind(dif_u,dif_i)
+  df <- data.frame(sub = sub,cond = cond, dif = dif_r)
+  #write.csv(df, file = "pse/" + "pse_" + i + ".csv")
+  dif <- rbind(dif,df)
+}
+```
+
+```{r}
+p2 <- ggplot(dif, aes(x=cond, y=pse, fill=cond)) +
+  geom_abline(intercept = 0, slope = 0, linetype = 3, alpha = 0.5)+
+  stat_summary(fun = "mean", geom = "bar",alpha = 0.9) +
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", col = "black", width = 0, size = 1) +
+  geom_jitter(aes(col= sub), size = 3, width = 0,alpha = 0.5) +
+  #geom_jitter(size = 3, width = 0.2) +
+  theme_classic()+
+  scale_x_discrete(name = "orientation") +
+  scale_y_continuous(name = "PSE", limits = c(-0.4,0.4))+
+  scale_fill_manual(values = c("#dc0909","#abb7b7"))+
+  #scale_fill_manual(values = c(#2e3535","#2e3535"))+
+  #coord_flip()+
+  annotate("segment", x=1,xend=2, y=0.37,yend=0.37,
+             colour="black", size=0.5)+
+  annotate("text", size = 6, y=0.39, x=1.5, label="***") +
+  theme(aspect.ratio=0.8)+ 
+  geom_line(aes(group = sub, color = sub), position =  position_dodge(width=0))+
+  theme(aspect.ratio=0.9)+
+  #facet_grid(.~sub)+
+  #scale_linetype_discrete(name = "stadard-comparison stumulus")+
+  theme(axis.title = element_text(size = 16, face = "bold"),
+        axis.text = element_text(size =  11, color = "black"),
+        
+        strip.background = element_blank(),
+        strip.text = element_text(size = 15, face = "bold"),
+        legend.position = "none") 
+p2
+
+ggsave("img/shape_d.png")
+```
+
+```{r}
+r <- ggplot(all, aes(x=x, y=rt,col = cond, shape = cond)) +
+  stat_summary(fun = "mean", geom = "point" , size=4)+
+  stat_summary(fun = "mean", geom = "line") +
+  theme_classic()+
+  scale_x_discrete(name = "The height of probe(line)(°)", limits = c(-0.8,-0.4,-0.2,0.0,0.2,0.4,0.8), expand = c(0.1,0)) +
+  scale_shape(limits=c("I", "IV","UB","UV"), labels = c(UV = "upright-vertex",UB = "upright-base",IV = "inverse-vertex",IB = "inverse-base"))+ 
+  scale_y_continuous(name = "Mean probability of comparison \n stimulus being perceived as higher")+
+  scale_color_manual(limits=c("IB","IV","UB","UV"), values = c("#BABABA","#dc0909","#BABABA","#dc0909"), labels = c(UV = "upright-vertex",UB = "upright-base",IV = "inverse-vertex",IB = "inverse-base"))+
+  theme(aspect.ratio=1)+ 
+  theme(plot.title=element_text(size=rel(1.75),face="bold"))+
+  theme(axis.title = element_text(size = 16, face = "bold"),
+        axis.text = element_text(size =  11, color = "black"),
+        strip.background = element_blank(),
+        strip.text = element_text(size = 15, face = "bold"))
+r
+
+ggsave("img/shape_rt.png")
+```
+
