@@ -1,0 +1,389 @@
+---
+title: "exp3"
+author: "kengoaihara"
+date: "2022-12-23"
+output: html_document
+---
+
+# install packages
+
+```{r message=FALSE, warning=FALSE}
+library(readr)
+library(tidyverse)
+library(gridExtra)
+library(Hmisc)
+library(dplyr)
+library(readr)
+library(pwr)
+library(compute.es)
+library(effsize)
+library(car)
+library(lme4)
+library(ggbreak)
+```
+
+# import data
+
+```{r message=FALSE, warning=FALSE}
+d1 <- read_csv("raw/sub1.csv") %>% mutate(sub="a")
+d2 <- read_csv("raw/sub2.csv") %>% mutate(sub="b")
+d3 <- read_csv("raw/sub3.csv") %>% mutate(sub="c")
+d4 <- read_csv("raw/sub4.csv") %>% mutate(sub="d")
+d5 <- read_csv("raw/sub5.csv") %>% mutate(sub="e")
+d6 <- read_csv("raw/sub6.csv") %>% mutate(sub="f")
+d7 <- read_csv("raw/sub7.csv") %>% mutate(sub="g")
+
+rbind(d1,d2,d3,d4,d5,d6,d7) -> dat
+```
+
+# make function
+
+```{r message=FALSE, warning=FALSE}
+"+" <- function(e1, e2) {
+    if (is.character(c(e1, e2))) {
+        paste(e1, e2, sep = "")
+    } else {
+        base::"+"(e1, e2)
+    }
+}
+```
+
+# make rdata
+
+```{r message=FALSE, warning=FALSE}
+dat$ori <- as.character(dat$ori)
+dat$dev <- as.character(dat$dev)
+dat$size <- as.character(dat$size)
+
+main <- select(dat,sub,label,ori,dev, stim,size,ratiox_tri,ratioy_tri,mouse_2.x,
+               mouse_2.y,name,participant)
+main<- mutate(main, area = ratiox_tri * ratioy_tri)
+main <- subset(main, main$label == "main") #本試行のみ
+filer <- subset(main, main$stim == "filer") #フィラーのみ
+main <- subset(main, main$stim == "stan") #実験刺激のみ
+main <- na.omit(main) #NA除去
+main_sub <- main #相関分析用のデータ
+```
+
+# delete outlier
+
+```{r}
+num <- c("001","002","003","004","005","006", "007")
+
+for (i in num) {
+ sub <- subset(main, main$participant == i)
+ 
+ subx_sd_ratiox_tri <- sd(sub$ratiox_tri)	#横幅の標準偏差						
+ subx_mean_ratiox_tri <- mean(sub$ratiox_tri) #横幅の平均
+ 
+ suby_sd_ratioy_tri <- sd(sub$ratioy_tri)	#縦幅の標準偏差
+ suby_mean_ratioy_tri <- mean(sub$ratioy_tri) #横幅の平均
+ 
+ #平均から2.5SD以上離れた値を除外（横幅）
+ sub %>%
+   filter(ratiox_tri > subx_mean_ratiox_tri - 2.5*subx_sd_ratiox_tri &  ratiox_tri < subx_mean_ratiox_tri + 2.5*subx_sd_ratiox_tri) -> sub
+ 
+ #平均から2.5SD以上離れた値を除外（縦幅）
+ sub %>%							
+   filter(ratioy_tri > suby_mean_ratioy_tri - 2.5*suby_sd_ratioy_tri & ratioy_tri < suby_mean_ratioy_tri + 2.5*suby_sd_ratioy_tri)-> sub
+ 
+ mutate(sub, ratio = ratiox_tri) -> sub1 #新規に比率の（横幅）みの列作成
+ sub1 %>%
+   mutate(sub1, res = mouse_2.x) %>% #新規に枠線の実値（横幅）の調整値の列作成
+   mutate(sub1, axis = "x") %>% #新規に”横軸”の値のみの列を作成
+   na.omit(sub1) -> sub1 #NAの行を削除
+  
+  #横軸のみのデータフレーム作成
+  subx <- select(sub1,label,stim,ori,dev,size,ratio,res,area,axis,name,participant)
+  
+  mutate(sub, ratio = ratioy_tri) -> sub2 #新規に比率の（縦幅）みの列作成
+  sub2 %>%
+   mutate(sub2, res = mouse_2.y)%>% #新規に枠線の実値（縦幅）の調整値の列作成
+   mutate(sub2, axis = "y")%>% #新規に”縦幅”の値のみの列を作成
+   na.omit(sub2) -> sub2
+  
+  #縦軸のみのデータフレーム作成
+  suby <- select(sub2,label,stim,ori,dev,size,ratio,res,area,axis,name,participant)
+  
+  #横幅と縦幅を連結
+  rbind(subx, suby) -> df
+  
+  #csv形式で出力
+  write.csv(df, file = "rData/r"+i + ".csv")
+}
+```
+
+# import praData
+
+```{r}
+## データフレーム作成（練習試行）
+pra <- select(dat, label,ori,dev, size,ratiox_cir,ratioy_cir,mouse.x, mouse.y,name,participant)
+pra <- subset(pra, pra$label == "pra") #練習試行だけ
+
+## x-axis
+pra %>%
+  mutate(pra, ratio = ratiox_cir) %>%　#新規に比率の（横幅）みの列作成
+  mutate(pra, res = mouse.x)%>%　#新規に枠線の実値（横幅）の調整値の列作成
+  mutate(pra, axis = "x") -> prax　#新規に”横軸”の値のみの列を作成
+
+#横軸のみのデータフレーム作成
+prax <- select(prax, label,ori,dev, size,ratio,res,axis,name,participant)
+
+## y-axis
+pra %>%
+  mutate(pra, ratio = ratioy_cir) %>% #新規に比率の（縦幅）みの列作成
+  mutate(pra, res = mouse.y)%>%　#新規に枠線の実値（縦幅）の調整値の列作成
+  mutate(pra, axis = "y") -> pray　　#新規に”縦軸”の値のみの列を作成
+
+#縦軸のみのデータフレーム作成
+pray <- select(pray, label,ori,dev, size,ratio,res,axis,name,participant)
+
+#横幅と縦幅を連結
+rbind(prax, pray) -> pra
+```
+
+# import rdat
+
+```{r}
+rsub1 <- read_csv("rdata/r001.csv", col_types = cols(ori = col_character(), 
+    dev = col_character(), size = col_character()))
+rsub2 <- read_csv("rdata/r002.csv", col_types = cols(ori = col_character(), 
+    dev = col_character(), size = col_character()))
+rsub3 <- read_csv("rdata/r003.csv", col_types = cols(ori = col_character(), 
+    dev = col_character(), size = col_character()))
+rsub4 <- read_csv("rdata/r004.csv", col_types = cols(ori = col_character(), 
+    dev = col_character(), size = col_character()))
+rsub5 <- read_csv("rdata/r005.csv", col_types = cols(ori = col_character(), 
+    dev = col_character(), size = col_character()))
+rsub6 <- read_csv("rdata/r006.csv", col_types = cols(ori = col_character(), 
+    dev = col_character(), size = col_character()))
+rsub7 <- read_csv("rdata/r007.csv", col_types = cols(ori = col_character(), 
+    dev = col_character(), size = col_character()))
+
+## 実験参加参加者全員分を縦に連結
+rbind(rsub1,rsub2,rsub3,rsub4,rsub5,rsub6,rsub7) -> main
+```
+
+# summary rdat
+
+```{r}
+summary(main)
+```
+
+# as.facetor
+
+```{r}
+main$ratio<-as.numeric(main$ratio)
+main$ori <- as.factor(main$ori)
+main$size <- as.factor(main$size)
+main$axis <- as.factor(main$axis)
+main$dev <- as.factor(main$dev)
+```
+
+# lmer
+
+```{r}
+f_model <- lmer(ratio ~ ori*axis + (1|participant) + (1|dev)+(1|size), data = main)
+
+#f_model2 <- lmer(ratio ~ ori:axis (1|participant) + (1|dev) + (1|size) + (1|axis), data = main)
+```
+
+# step
+
+```{r message=FALSE, warning=FALSE}
+#step(f_model)
+```
+
+# anova
+
+```{r message=FALSE, warning=FALSE}
+Anova(f_model)
+#Anova(f_model2)
+```
+
+# difflsmeans
+
+```{r message=FALSE, warning=FALSE}
+#difflsmeans(f_model)
+```
+
+Least Squares Means table:
+
+                                               Estimate  Std. Error   df t value       lower       upper  Pr(>|t|)    
+    ori0:axisx:size3 - ori180:axisx:size3    0.00704418  0.01730757 1613  0.4070 -0.02690350  0.04099187 0.6840618
+    ori0:axisx:size3 - ori0:axisy:size3      0.00609741  0.01733921 1613  0.3517 -0.02791234  0.04010715 0.7251434
+    ori180:axisx:size3 - ori180:axisy:size3 -0.02833903  0.01727390 1613 -1.6406 -0.06222067  0.00554262 0.1010819 
+    ori0:axisy:size3 - ori180:axisy:size3   -0.02739225  0.01730757 1613 -1.5827 -0.06133993  0.00655543 0.1136916
+
+    ori0:axisx:size4 - ori180:axisx:size4    0.02837215  0.01708321 1613  1.6608 -0.00513547  0.06187978 0.0969438 .
+    ori0:axisx:size4 - ori0:axisy:size4     -0.02278819  0.01708232 1613 -1.3340 -0.05629406  0.01071768 0.1823849
+    ori180:axisx:size4 - ori180:axisy:size4 -0.04492683  0.01708232 1613 -2.6300 -0.07843270 -0.01142096 0.0086192 **
+    ori0:axisy:size4 - ori180:axisy:size4    0.00623351  0.01708321 1613  0.3649 -0.02727411  0.03974114 0.7152406
+
+    ori0:axisx:size5 - ori180:axisx:size5   -0.01435309  0.01686690 1613 -0.8510 -0.04743644  0.01873025 0.3949168    
+    ori0:axisx:size5 - ori0:axisy:size5     -0.03605034  0.01683652 1613 -2.1412 -0.06907408 -0.00302660 0.0324074 *
+    ori180:axisx:size5 - ori180:axisy:size5 -0.05317231  0.01689697 1613 -3.1469 -0.08631463 -0.02002999 0.0016805 ** 
+    ori0:axisy:size5 - ori180:axisy:size5   -0.03147506  0.01686690 1613 -1.8661 -0.06455841  0.00160829 0.0622110 .  
+    ---
+    Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+      Confidence level: 95%
+      Degrees of freedom method: Satterthwaite 
+
+```{r}
+plot(f_model)
+```
+
+```{r}
+#plot(difflsmeans(f_model))
+```
+
+# circle: ratio \~ axis
+
+```{r}
+p <- ggplot(pra, aes(x=axis, y=ratio, fill=axis)) +
+  geom_abline(intercept = 0, slope = 0, linetype = 1, colour = "black",alpha = 1, size = 0.5)+
+  geom_abline(intercept = 1, slope = 0, linetype = 1, colour = "black",alpha = 0.5, size = 0.5)+
+  stat_summary(fun = "mean", geom = "bar",alpha = 1, position = position_dodge(), width = 0.9) +
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", col = "black", width = 0, size = 1,position = position_dodge(width=0.5)) +
+  geom_jitter(size = 1, width = 0.4,alpha = 0.2, col = "black") +
+  scale_y_continuous(name = "ratio(prove/circle)", breaks=c(0,0.5,1.0,1.5,2.0,2.5), limits=c(0, 2.5), expand = c(0,0))+
+  scale_fill_manual(values = c("gray","red"))+
+  theme_classic() +
+  ggtitle("circle: ratio ~ axis")+
+  labs(tag = "(a)") +
+  #coord_cartesian(ylim = c(0.5,1.7))+
+  theme(aspect.ratio=2.5)+
+  #theme(panel.border = element_rect(fill = NA, size=0.5))+
+  theme(title = element_text(size = 14),
+        axis.title = element_text(size = 14),
+        axis.title.x = element_text(size = 14), 
+        axis.text = element_text(size =  14, colour = "black"),
+        axis.ticks.x=element_blank(),
+        strip.background = element_blank(),
+        plot.tag.position ="bottomleft",
+        legend.position = "none",
+        strip.text = element_text(size = 14)) 
+p
+ggsave("img/practice1.jpg",p)
+```
+
+# ratio \~ size:axis:ori
+
+```{r}
+sig.text <- data.frame(
+  axis = c(1.9,2.1),
+  ori = c("180", "180"),
+  ratio = c(1.55,1.55),
+  label = c("*","**"),
+  size = c("4","5"),
+  
+  x = c(1.225,1.225),
+  y = c(1.5,1.5),
+  y2 = c(1.5,1.5),
+  xend = c(2.225,2.225),
+  xend2 = c(1.225,1.225),
+  yend = c(1.5,1.5),
+  yend2 = c(1.25,1.25),
+  yend3 = c(1.25,1.25)
+  )
+
+d <- ggplot(main, aes(x=axis, y=ratio, fill=ori)) +
+  geom_abline(intercept = 0, slope = 0, linetype = 1, colour = "black",alpha = 1, size = 0.5)+
+  geom_abline(intercept = 1, slope = 0, linetype = 1, colour = "black",alpha = 0.5, size = 0.5)+
+  stat_summary(fun = "mean", geom = "bar",alpha = 1, position = position_dodge()) +
+  #stat_summary(aes(color = participant), fun = "mean", geom = "point",alpha = 1, position = position_dodge(width= 0.9)) +
+  #geom_jitter(size = 1, width = 0.4,alpha = 0.1, col = "black") +
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", col = "black", width = 0, size = 1,position = position_dodge(width=0.9)) +
+  scale_y_continuous(name = "ratio(prove/triangle)", breaks=c(0.0,0.5,1,1.5,2), limits=c(0, 2), expand = c(0,0))+
+  scale_fill_manual(values = c("gray","red"))+
+  scale_x_discrete(name = "ori",labels=c("x" = "0   180", "y" = "0 　180"))+
+  #scale_fill_manual(values = c("#f8766d", "#00bfc4"))+
+  theme_classic() +
+  labs(tag = "(a)") +
+  #coord_cartesian(ylim = c(0.5,1.7))+
+  theme(aspect.ratio=1.25)+
+  #theme(panel.border = element_rect(fill = NA, size=0.5))+
+  theme(title = element_text(size = 14),
+        axis.title = element_text(size = 14),
+        axis.title.x = element_text(size = 14), 
+        axis.text = element_text(size =  14, colour = "black"),
+        axis.ticks.x=element_blank(),
+        strip.background = element_blank(),
+        plot.tag.position ="bottomleft",
+        legend.position = "none",
+        strip.text = element_text(size = 14)) 
+
+d +
+  annotate("text", size = 6, y=1.75, x=1, label="x")+
+  annotate("text", size = 6, y=1.75, x=2, label="y")+
+  annotate("segment",x = 1.225,  y = 1.5, xend=2.225, yend=1.5,size=0.8)+
+  annotate("segment",x = 1.225,  y = 1.25, xend=1.225, yend=1.5,size=0.8)+
+  annotate("segment",x = 2.225,  y = 1.25, xend=2.225, yend=1.5,size=0.8)+
+  ggtitle("ratio ~ ori:axis") -> d1
+
+d1
+
+d +
+  facet_grid(. ~ size)+
+  geom_text(data=sig.text,
+            aes(x=axis, y=ratio,label = label),
+            hjust = 2.8,
+            size = 5)+
+  ggtitle("ratio ~ ori:axis:size")+
+  geom_segment(data = sig.text, aes(x = x,  y = y, xend=xend, yend=yend), inherit.aes = TRUE)+
+  geom_segment(data = sig.text, aes(x = x,  y = y2, xend=xend2, yend=yend2), inherit.aes = TRUE)+
+  geom_segment(data = sig.text, aes(x = xend,  y = y2, xend=xend, yend=yend3), inherit.aes = TRUE)+
+  annotate("text", size = 6, y=1.75, x=1, label="x")+
+  annotate("text", size = 6, y=1.75, x=2, label="y")->d2
+
+d2
+
+d +
+  facet_grid(. ~ size)+
+  annotate("text", size = 6, y=1.75, x=1, label="x")+
+  annotate("text", size = 6, y=1.75, x=2, label="y")+
+  ggtitle("ratio ~ ori:axis:size")+
+  annotate("segment", size = 0.5, y=1.35,yend =1.35, x=0.8,xend=1.2, label="x")+
+  annotate("segment", size = 0.5, y=1.35,yend =1.35, x=1.8,xend=2.2, label="y")+
+  annotate("text", size = 5, y=1.45, x=1, label="n.s.",fontface = 'italic')+
+  annotate("text", size = 5, y=1.45, x=2, label="n.s.",fontface = 'italic')-> d3
+d3
+
+ggsave("img/result.jpg",d1)
+ggsave("img/result1.jpg",d2)
+ggsave("img/result2.jpg",d3)
+```
+
+# Ajusted P-value
+
+```{r}
+#ori180:axisx:size4 - ori180:axisy:size4 -0.04492683  0.01708232 1613 -2.6300 -0.07843270 -0.01142096 0.0086192 **
+ 
+
+0.0086192 * 2
+```
+
+```{r}
+#ori0:axisx:size5 - ori0:axisy:size5     -0.03605034  0.01683652 1613 -2.1412 -0.06907408 -0.00302660 0.0324074 *
+
+0.0321074 * 2
+```
+
+```{r}
+#ori180:axisx:size5 - ori180:axisy:size5 -0.05317231  0.01689697 1613 -3.1469 -0.08631463 -0.02002999 0.0016805 **
+
+0.0016805 * 2
+```
+
+```{r}
+#ori0:axisy:size5 - ori180:axisy:size5   -0.03147506  0.01686690 1613 -1.8661 -0.06455841  0.00160829 0.0622110 .
+
+0.00622110 * 2
+```
+
+```{r}
+#ori180:axisx - ori180:axisy -0.0423287  0.0100259 1621 -4.2219 -0.0619937 -0.0226636 2.556e-05 ***
+
+0.00002556 *2
+```

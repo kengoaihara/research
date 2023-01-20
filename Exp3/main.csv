@@ -1,0 +1,17 @@
+label,size,ori,dev,geo,stim
+main,0,0,10,uptriangle,filer
+main,0,0,1,uptriangle,filer
+main,0,180,10,downtriangle,filer
+main,0,180,1,downtriangle,filer
+main,3,0,10,uptriangle,stan
+main,3,0,1,uptriangle,stan
+main,4,0,10,uptriangle,stan
+main,4,0,1,uptriangle,stan
+main,5,0,10,uptriangle,stan
+main,5,0,1,uptriangle,stan
+main,3,180,10,downtriangle,stan
+main,3,180,1,downtriangle,stan
+main,4,180,10,downtriangle,stan
+main,4,180,1,downtriangle,stan
+main,5,180,10,downtriangle,stan
+main,5,180,1,downtriangle,stan
