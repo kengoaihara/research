@@ -1,0 +1,246 @@
+---
+title: "Exp 1"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::robobook:
+    highlight: kate
+---
+
+# install packages
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library("tidyverse")
+library("scales")
+library("effsize")
+library("pwr")
+library("ggplot2")
+library("readr")
+library("dplyr")
+library("reticulate")
+library("cowplot")
+library("rmdformats")
+```
+
+# import dataset
+
+```{r message=FALSE, warning=FALSE}
+data0630a <- read_csv("r_data/data0630a_r.csv")
+data0630b <- read_csv("r_data/data0630b_r.csv")
+data0701a <- read_csv("r_data/data0701a_r.csv")
+data0701c <- read_csv("r_data/data0701c_r.csv")
+data0702a <- read_csv("r_data/data0702a_r.csv")
+data0702b <- read_csv("r_data/data0702b_r.csv",col_types = cols(sub = col_character()))
+data0704a <- read_csv("r_data/data0704a_r.csv")
+data0705a <- read_csv("r_data/data0705a_r.csv")
+data0705b <- read_csv("r_data/data0705b_r.csv")
+data0706a <- read_csv("r_data/data0706a_r.csv")
+data0707a <- read_csv("r_data/data0707a_r.csv")
+data0707b <- read_csv("r_data/data0707b_r.csv")
+data0708a <- read_csv("r_data/data0708a_r.csv")
+data0708b <- read_csv("r_data/data0708b_r.csv")
+data0708c <- read_csv("r_data/data0708c_r.csv")
+data0708d <- read_csv("r_data/data0708d_r.csv")
+data0710a <- read_csv("r_data/data0710a_r.csv")
+data0710b <- read_csv("r_data/data0710b_r.csv")
+data0712a <- read_csv("r_data/data0712a_r.csv")
+data0713a <- read_csv("r_data/data0713a_r.csv", col_types = cols(sub = col_character()))
+
+all <- rbind(data0630a,data0630b,data0701a,data0701c,data0702a,data0702b,data0704a,data0705a,data0705b,data0706a,data0707a,data0707b,data0708a,data0708b,data0708c,data0708d,data0710a, data0710b, data0712a, data0713a)
+```
+
+# Psychometric Function
+
+```{r}
+# Psychometric Function(all)
+g <- ggplot(all, aes(x=x, y=y, group = cond, col = cond, shape = cond,linetype = cond)) +
+  geom_abline(intercept = 0.5, slope = 0, linetype = 1, colour = "black",alpha = 1, size = 0.5)+
+  geom_vline(xintercept = 1, slope = 0, linetype = 1, colour = "black",alpha = 1, size = 0.5)+
+  geom_smooth(method = "glm", method.args = list(family = binomial(link = "logit")), se = FALSE,  size=1) +
+  stat_summary(fun = "mean", geom = "point" , size=2.5)+
+  theme_classic()+
+  ggtitle("psychometric function")+
+  scale_x_discrete(name = "comparison stimulus size(°)", limits = c(0.85, 0.94,0.97,1.00,1.03,1.07,1.15), expand = c(0.1,0),labels = c("0.85" = "3.40","0.94" = "3.76","0.97" = "3.88","1" = "4.00","1.03" = "4.12", "1.07"="4.24", "1.15"="6.00")) +
+  scale_y_continuous(name = "Mean probability of comparison \n stimulus being perceived as larger (%)",labels = c("0.00" = "0","0.25" = "25","0.50" = "50","0.75" = "75","1.00" = "100"))+
+  #guides(shape = guide_legend(reverse = TRUE))+
+  #guides(col = guide_legend(reverse = TRUE))+
+  #guides(linetype = guide_legend(reverse = TRUE))+
+  theme(panel.border = element_rect(fill = NA, size=0.5))+
+  labs(tag = "(a)") +
+  scale_shape(limits=c("UU", "UI","IU","II"), labels = c(UU = "Upward-Upward",UI = "Upward-Donwward",IU = "Donwward-Upward",II = "Donwward-Donwward"), name = "")+  
+  
+  scale_color_manual(limits=c("UU", "UI","IU","II"),  values = c("#BABABA","#dc0909","#dc0909","#BABABA"), labels = c(UU = "Upward-Upward",UI = "Upward-Donwward",IU = "Donwward-Upward",II = "Donwward-Donwward"), name = "")+
+  
+  scale_linetype_manual(values = c("twodash","solid","solid","twodash"),limits=c("UU", "UI","IU","II"), labels = c(UU = "Upward-Upward",UI = "Upward-Donwward",IU = "Donwward-Upward",II = "Donwward-Donwward"), name = "")+
+  theme(legend.position = c(0.755,0.28)) +
+  theme(aspect.ratio=0.85)+ 
+  theme(axis.title = element_text(size = 14),
+        axis.text = element_text(size =  14, colour = "black"),
+        legend.text = element_text(size = 10),
+        strip.background = element_blank(),
+        plot.caption  = element_text(size = 14),
+        plot.tag.position ="bottomleft",
+        strip.text = element_text(size = 14),
+        axis.text.x = element_text(size = 11, face="bold"))
+g
+
+ggsave("./img/shape_f.jpg")
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+## PSE Calculation
+
+"+" <- function(e1, e2) {
+    if (is.character(c(e1, e2))) {
+        paste(e1, e2, sep = "")
+    } else {
+        base::"+"(e1, e2)
+    }
+}
+
+num <- c("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t")
+
+for (i in num) {
+  subject <- subset(all, sub == i) 
+  #UU_PSE
+  UU <- subset(subject, cond == "UU")
+  UU_m<-glm(formula = y ~ x, family = binomial(logit), data=UU)
+  UU_c <- coefficients(UU_m)
+  UU_PSE <- -c(UU_c[1]/UU_c[2],1/UU_c[2])
+  
+  #UI_PSE
+  UI <- subset(subject, cond == "UI")
+  UI_m<-glm(formula = y ~ x, family = binomial(logit), data=UI)
+  UI_c <- coefficients(UI_m)
+  UI_PSE <- -c(UI_c[1:1]/UI_c[2],1/UI_c[2])
+  
+  #IU_PSE
+  IU <- subset(subject, cond == "IU")
+  IU_m<-glm(formula = y ~ x, family = binomial(logit), data=IU)
+  IU_c <- coefficients(IU_m)
+  IU_PSE <- -c(IU_c[1]/IU_c[2],1/IU_c[2])
+  
+  #II_PSE
+  II <- subset(subject, cond=="II")
+  II_m<-glm(formula = y ~ x, family = binomial(logit), data=II)
+  II_c <- coefficients(II_m)
+  II_PSE <- -c(II_c[1]/II_c[2],1/II_c[2])
+  
+  sub    <- c(i,i,i,i)
+  cond <- c("UU","UI","IU","II")
+  pse_shape <- c(UU_PSE[1],UI_PSE[1],IU_PSE[1],II_PSE[1])
+  as.numeric(pse_shape)
+  diff <- c(UU_PSE[1]-1,UI_PSE[1]-1,IU_PSE[1]-1,II_PSE[1]-1)
+  df <- data.frame(sub = sub,cond = cond, pse = pse_shape, diff = diff)
+  write.csv(df, file = "pse/" + "pse_" + i + ".csv")
+}
+
+num <- c("a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t")
+
+pse_a <- read_csv("pse/pse_a.csv")
+pse_b <- read_csv("pse/pse_b.csv")
+pse_c <- read_csv("pse/pse_c.csv")
+pse_d <- read_csv("pse/pse_d.csv")
+pse_e <- read_csv("pse/pse_e.csv")
+pse_f <- read_csv("pse/pse_f.csv", col_types = cols(sub = col_character()))
+pse_g <- read_csv("pse/pse_g.csv")
+pse_h <- read_csv("pse/pse_h.csv")
+pse_i <- read_csv("pse/pse_i.csv")
+pse_j <- read_csv("pse/pse_j.csv")
+pse_k <- read_csv("pse/pse_k.csv")
+pse_l <- read_csv("pse/pse_l.csv")
+pse_m <- read_csv("pse/pse_m.csv")
+pse_n <- read_csv("pse/pse_n.csv")
+pse_o <- read_csv("pse/pse_o.csv")
+pse_p <- read_csv("pse/pse_p.csv")
+pse_q <- read_csv("pse/pse_q.csv")
+pse_r <- read_csv("pse/pse_r.csv")
+pse_s <- read_csv("pse/pse_s.csv")
+pse_t <- read_csv("pse/pse_t.csv", col_types = cols(sub = col_character()))
+
+pse <- rbind(pse_a,pse_b,pse_c,pse_d,pse_e,pse_f,pse_g,pse_h,pse_i,pse_j,pse_k,pse_l,pse_m,pse_n,pse_o,pse_p,pse_q,pse_r,pse_s,pse_t)
+
+```
+
+# PSE
+
+```{r}
+p <- ggplot(pse, aes(x=cond, y=pse, fill=cond)) +
+  geom_abline(intercept = 1, slope = 0, linetype = 1, colour = "black",alpha = 1, size = 0.5)+
+  stat_summary(fun = "mean", geom = "bar",alpha = 1) +
+  stat_summary(fun.data = mean_cl_normal, geom = "errorbar", col = "black", width = 0, size = 1) +
+  scale_y_continuous(name = "Point of Subjective Equality (PSE)")+
+  geom_jitter(aes(col= sub), size = 1.5, width = 0.3,alpha = 0.75) +
+  theme_classic() +
+  annotate("text", size = 4, y=1.049, x=1, label="n.s.", fontface="bold.italic") +
+  annotate("text", size = 4, y=1.049, x=2, label="n.s.", fontface="bold.italic") +
+  annotate("text", size = 6, y=1.047, x=3, label="*", fontface="italic") +
+    annotate("text", size = 4, y=1.049, x=4, label="n.s.", fontface="bold.italic") +
+  scale_x_discrete(name = "Stimulus combination",limits=c("UU", "UI", "IU", "II"), labels = c(UU = "Upward\nUpward",UI = "Upward\nDownward",IU = "Downward\nUpward",II = "Downward\nDownward"))+
+  #scale_colour_manual(name = "")+
+  ggtitle("ratio ~ ori(congr- incongr)")+
+  scale_fill_manual(values = c("#abb7b7","#dc0909","#dc0909","#abb7b7"), name = "Standard Stimulus \nComparison Stimulus", labels = c(II = "", IU =""))+
+  theme(aspect.ratio=0.85)+
+  theme(panel.border = element_rect(fill = NA, size=0.5))+
+  coord_cartesian(ylim=c(0.95,1.05))+
+  labs(tag = "(b)") +
+  theme(axis.title = element_text(size = 14),
+        axis.text = element_text(size =  12, colour = "black"),
+        axis.ticks.x=element_blank(),
+        strip.background = element_blank(),
+        plot.tag.position ="bottomleft",
+        legend.position = "none",
+        strip.text = element_text(size = 14)) 
+ggdraw(p) + draw_label("Standard \nComparison", colour = "black",size = 12,x = 0.22,y = 0.13)
+
+ggsave("img/shape_p.jpg")
+```
+
+# One Sample t-test / Power Analytics
+
+# Uright-Upright
+
+```{r}
+UU <- subset(pse, cond=="UU")
+t.test(UU$pse, mu=1)
+```
+
+```{r}
+UU_d <- cohen.d(UU$diff,NA)
+UU_d
+```
+
+# Uright-Inverse
+
+```{r}
+UI <- subset(pse, cond=="UI")
+t.test(UI$pse, mu=1)
+```
+
+```{r}
+UI_d <- cohen.d(UI$diff,NA)
+UI_d
+```
+
+# Inverse-Upright
+
+```{r}
+IU <- subset(pse, cond=="IU")
+t.test(IU$pse, mu=1)
+```
+
+```{r}
+IU_d <- cohen.d(IU$diff,NA)
+IU_d
+```
+
+# Inverse-Inverse
+
+```{r}
+II <- subset(pse, cond=="II")
+t.test(II$pse, mu=1)
+```
+
+```{r}
+II_d <- cohen.d(II$diff,NA)
+II_d
+```
