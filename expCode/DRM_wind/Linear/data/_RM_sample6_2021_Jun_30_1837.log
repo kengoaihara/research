@@ -1,0 +1,133 @@
+2.3984 	WARNING 	We strongly recommend you activate the PTB sound engine in PsychoPy prefs as the preferred audio engine. Its timing is vastly superior. Your prefs are currently set to use ['sounddevice', 'PTB', 'pyo', 'pygame'] (in that order).
+75.8638 	WARNING 	User requested fullscreen with size [1504 1003], but screen is actually [1920, 1080]. Using actual size
+79.1118 	EXP 	Created window1 = Window(allowGUI=False, allowStencil=False, autoLog=True, backendConf=UNKNOWN, bitsMode=UNKNOWN, blendMode='avg', bpc=(8, 8, 8), color=array([-1., -1., -1.]), colorSpace='rgb', depthBits=8, fullscr=<method-wrapper '__getattribute__' of attributeSetter object at 0x0000022AE4445860>, gamma=None, gammaErrorPolicy='raise', lms=UNKNOWN, monitor=<psychopy.monitors.calibTools.Monitor object at 0x0000022AE4425E48>, multiSample=False, name='window1', numSamples=2, pos=[0.0, 0.0], screen=0, size=array([1920, 1080]), stencilBits=0, stereo=False, units='height', useFBO=True, useRetina=False, viewOri=0.0, viewPos=None, viewScale=None, waitBlanking=True, winType='pyglet')
+79.1130 	EXP 	window1: mouseVisible = True
+79.1131 	EXP 	window1: recordFrameIntervals = False
+79.2735 	EXP 	window1: recordFrameIntervals = True
+79.4580 	EXP 	window1: recordFrameIntervals = False
+79.8296 	EXP 	Created text = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([0., 0., 0.]), colorSpace='rgb', contrast=1.0, depth=0.0, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=1.5, italic=False, languageStyle='LTR', name='text', opacity=1, ori=0.0, pos=array([0., 0.]), rgb=UNKNOWN, text='same = "F"\ndifferent ="J"\n\n(space)', units='deg', win=Window(...), wrapWidth=15.0)
+79.8296 	EXP 	window1: mouseVisible = False
+79.8362 	EXP 	Created fix = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([0., 0., 0.]), colorSpace='rgb', contrast=1.0, depth=-1.0, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=3.0, italic=False, languageStyle='LTR', name='fix', opacity=1, ori=0.0, pos=array([0., 5.]), rgb=UNKNOWN, text='+', units='deg', win=Window(...), wrapWidth=15.0)
+79.8405 	EXP 	Created polygon = Polygon(__class__=<class 'psychopy.visual.polygon.Polygon'>, autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=-2.0, fillColor=array([0., 0., 0.]), fillColorSpace='rgb', fillRGB=UNKNOWN, interpolate=True, lineColor=array([0., 0., 0.]), lineColorSpace='rgb', lineRGB=UNKNOWN, lineWidth=1.0, name='polygon', opacity=1, ori=0.0, pos=array([ 0., -5.]), size=array([1., 1.]), units='deg', vertices=ndarray(...), win=Window(...))
+79.8438 	EXP 	Created resp = TextStim(__class__=<class 'psychopy.visual.text.TextStim'>, alignHoriz=method-wrapper(...), alignText='center', alignVert=method-wrapper(...), anchorHoriz='center', anchorVert='center', antialias=True, autoLog=True, bold=False, color=array([0., 0., 0.]), colorSpace='rgb', contrast=1.0, depth=-4.0, flipHoriz=False, flipVert=False, font='Open Sans', fontFiles=[], height=1.5, italic=False, languageStyle='LTR', name='resp', opacity=1, ori=0.0, pos=array([0., 5.]), rgb=UNKNOWN, text='same = F\ndifferent =J', units='deg', win=Window(...), wrapWidth=15.0)
+79.8454 	EXP 	Created polygon_2 = Polygon(__class__=<class 'psychopy.visual.polygon.Polygon'>, autoDraw=False, autoLog=True, closeShape=True, color=method-wrapper(...), colorSpace='rgb', contrast=None, depth=-5.0, fillColor=array([0., 0., 0.]), fillColorSpace='rgb', fillRGB=UNKNOWN, interpolate=True, lineColor=array([0., 0., 0.]), lineColorSpace='rgb', lineRGB=UNKNOWN, lineWidth=1.0, name='polygon_2', opacity=1, ori=0.0, pos=array([ 0., -5.]), size=array([1., 1.]), units='deg', vertices=ndarray(...), win=Window(...))
+79.8794 	EXP 	text: autoDraw = True
+81.1343 	EXP 	Imported RM_sample6.csv as conditions, 14 conditions, 2 params
+81.1384 	EXP 	Created sequence: random, trialTypes=14, nReps=5, seed=None
+81.1386 	EXP 	New trial (rep=0, index=0): OrderedDict([('start_size', 1), ('probe', -1.0)])
+81.1435 	EXP 	text: autoDraw = False
+81.1435 	EXP 	polygon_2: size = array([4.59473813, 4.59473813])
+81.1453 	DATA 	Keypress: space
+81.6402 	EXP 	fix: autoDraw = True
+82.1422 	EXP 	polygon: autoDraw = True
+82.1422 	EXP 	polygon: size = array([1.01246985, 1.01246985])
+82.1569 	EXP 	polygon: size = array([1.12344825, 1.12344825])
+82.1735 	EXP 	polygon: size = array([1.21155345, 1.21155345])
+82.1903 	EXP 	polygon: size = array([1.31076285, 1.31076285])
+82.2069 	EXP 	polygon: size = array([1.41161505, 1.41161505])
+82.2236 	EXP 	polygon: size = array([1.51133925, 1.51133925])
+82.2399 	EXP 	polygon: size = array([1.61144445, 1.61144445])
+82.2566 	EXP 	polygon: size = array([1.70944125, 1.70944125])
+82.2731 	EXP 	polygon: size = array([1.80941145, 1.80941145])
+82.2901 	EXP 	polygon: size = array([1.90872345, 1.90872345])
+82.3068 	EXP 	polygon: size = array([2.01064665, 2.01064665])
+82.3233 	EXP 	polygon: size = array([2.11100625, 2.11100625])
+82.3399 	EXP 	polygon: size = array([2.20947465, 2.20947465])
+82.3568 	EXP 	polygon: size = array([2.30939685, 2.30939685])
+82.3736 	EXP 	polygon: size = array([2.41080105, 2.41080105])
+82.3901 	EXP 	polygon: size = array([2.51153865, 2.51153865])
+82.4069 	EXP 	polygon: size = array([2.61058245, 2.61058245])
+82.4236 	EXP 	polygon: size = array([2.71135065, 2.71135065])
+82.4402 	EXP 	polygon: size = array([2.81141325, 2.81141325])
+82.4568 	EXP 	polygon: size = array([2.91121245, 2.91121245])
+82.4736 	EXP 	polygon: size = array([3.01073385, 3.01073385])
+82.4900 	EXP 	polygon: size = array([3.11180205, 3.11180205])
+82.5068 	EXP 	polygon: size = array([3.21022245, 3.21022245])
+82.5237 	EXP 	polygon: size = array([3.31091805, 3.31091805])
+82.5401 	EXP 	polygon: size = array([3.41195625, 3.41195625])
+82.5568 	EXP 	polygon: size = array([3.51071565, 3.51071565])
+82.5736 	EXP 	polygon: size = array([3.61076445, 3.61076445])
+82.5903 	EXP 	polygon: size = array([3.71151345, 3.71151345])
+82.6069 	EXP 	polygon: size = array([3.81162045, 3.81162045])
+82.6236 	EXP 	polygon: size = array([3.91143285, 3.91143285])
+82.6400 	EXP 	polygon: size = array([4.01153145, 4.01153145])
+82.6568 	EXP 	polygon: size = array([4.10971605, 4.10971605])
+82.6736 	EXP 	polygon: size = array([4.21103205, 4.21103205])
+82.6899 	EXP 	polygon: size = array([4.31176245, 4.31176245])
+82.7069 	EXP 	polygon: size = array([4.40950605, 4.40950605])
+82.7236 	EXP 	polygon: size = array([4.51137465, 4.51137465])
+82.7403 	EXP 	polygon: size = array([4.61170425, 4.61170425])
+82.7569 	EXP 	polygon: size = array([4.71163125, 4.71163125])
+82.7736 	EXP 	polygon: size = array([4.81139145, 4.81139145])
+82.7903 	EXP 	polygon: size = array([4.91136585, 4.91136585])
+82.8069 	EXP 	polygon: size = array([5.01176745, 5.01176745])
+82.8235 	EXP 	polygon: size = array([5.11137885, 5.11137885])
+82.8400 	EXP 	polygon: size = array([5.21107485, 5.21107485])
+82.8567 	EXP 	polygon: size = array([5.31010725, 5.31010725])
+82.8736 	EXP 	polygon: size = array([5.41010625, 5.41010625])
+82.8900 	EXP 	fix: autoDraw = False
+82.8900 	EXP 	polygon: size = array([5.51145645, 5.51145645])
+82.9067 	EXP 	polygon: autoDraw = False
+83.1403 	EXP 	resp: autoDraw = True
+83.1403 	EXP 	polygon_2: autoDraw = True
+84.1781 	DATA 	Keypress: space
+85.0021 	EXP 	New trial (rep=0, index=1): OrderedDict([('start_size', 1), ('probe', 1.0)])
+85.0074 	EXP 	fix: autoDraw = False
+85.0074 	EXP 	polygon: autoDraw = False
+85.0074 	EXP 	resp: autoDraw = False
+85.0074 	EXP 	polygon_2: autoDraw = False
+85.0074 	EXP 	polygon_2: size = array([6.50759918, 6.50759918])
+85.0101 	DATA 	Keypress: j
+85.5067 	EXP 	fix: autoDraw = True
+86.0065 	EXP 	polygon: autoDraw = True
+86.0065 	EXP 	polygon: size = array([0.95706334, 0.95706334])
+86.0233 	EXP 	polygon: size = array([1.05485434, 1.05485434])
+86.0398 	EXP 	polygon: size = array([1.15586854, 1.15586854])
+86.0564 	EXP 	polygon: size = array([1.25511934, 1.25511934])
+86.0733 	EXP 	polygon: size = array([1.35484714, 1.35484714])
+86.0899 	EXP 	polygon: size = array([1.45609654, 1.45609654])
+86.1066 	EXP 	polygon: size = array([1.55595274, 1.55595274])
+86.1232 	EXP 	polygon: size = array([1.65577174, 1.65577174])
+86.1396 	EXP 	polygon: size = array([1.75580014, 1.75580014])
+86.1571 	EXP 	polygon: size = array([1.85392954, 1.85392954])
+86.1732 	EXP 	polygon: size = array([1.95917854, 1.95917854])
+86.1898 	EXP 	polygon: size = array([2.05558114, 2.05558114])
+86.2066 	EXP 	polygon: size = array([2.15503954, 2.15503954])
+86.2233 	EXP 	polygon: size = array([2.25597574, 2.25597574])
+86.2398 	EXP 	polygon: size = array([2.35622014, 2.35622014])
+86.2565 	EXP 	polygon: size = array([2.45532634, 2.45532634])
+86.2733 	EXP 	polygon: size = array([2.55560554, 2.55560554])
+86.2899 	EXP 	polygon: size = array([2.65597174, 2.65597174])
+86.3065 	EXP 	polygon: size = array([2.75578714, 2.75578714])
+86.3233 	EXP 	polygon: size = array([2.85533614, 2.85533614])
+86.3396 	EXP 	polygon: size = array([2.95601614, 2.95601614])
+86.3565 	EXP 	polygon: size = array([3.05399674, 3.05399674])
+86.3730 	EXP 	polygon: size = array([3.15532714, 3.15532714])
+86.3900 	EXP 	polygon: size = array([3.25471534, 3.25471534])
+86.4066 	EXP 	polygon: size = array([3.35671174, 3.35671174])
+86.4233 	EXP 	polygon: size = array([3.45601894, 3.45601894])
+86.4400 	EXP 	polygon: size = array([3.55638814, 3.55638814])
+86.4567 	EXP 	polygon: size = array([3.65653354, 3.65653354])
+86.4733 	EXP 	polygon: size = array([3.75685594, 3.75685594])
+86.4900 	EXP 	polygon: size = array([3.85622614, 3.85622614])
+86.5066 	EXP 	polygon: size = array([3.95643034, 3.95643034])
+86.5233 	EXP 	polygon: size = array([4.05631654, 4.05631654])
+86.5400 	EXP 	polygon: size = array([4.15634614, 4.15634614])
+86.5566 	EXP 	polygon: size = array([4.25636074, 4.25636074])
+86.5731 	EXP 	polygon: size = array([4.35613774, 4.35613774])
+86.5899 	EXP 	polygon: size = array([4.45533394, 4.45533394])
+86.6065 	EXP 	polygon: size = array([4.55570374, 4.55570374])
+86.6233 	EXP 	polygon: size = array([4.65566434, 4.65566434])
+86.6400 	EXP 	polygon: size = array([4.75623454, 4.75623454])
+86.6566 	EXP 	polygon: size = array([4.85661934, 4.85661934])
+86.6733 	EXP 	polygon: size = array([4.95627274, 4.95627274])
+86.6900 	EXP 	polygon: size = array([5.05646794, 5.05646794])
+86.7066 	EXP 	polygon: size = array([5.15661034, 5.15661034])
+86.7232 	EXP 	polygon: size = array([5.25621154, 5.25621154])
+86.7400 	EXP 	polygon: size = array([5.35566214, 5.35566214])
+86.7566 	EXP 	fix: autoDraw = False
+86.7566 	EXP 	polygon: autoDraw = False
+87.0067 	EXP 	resp: autoDraw = True
+87.0067 	EXP 	polygon_2: autoDraw = True
+87.5982 	DATA 	Keypress: escape
+87.8370 	EXP 	window1: mouseVisible = True
